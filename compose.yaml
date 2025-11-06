@@ -27,20 +27,6 @@ services:
       resources:
         limits:
           memory: 700m
-  history:
-    image: history
-    ports:
-      - "8120:8120"
-    networks:
-      - currency-network
-    depends_on:
-      - naming-server
-    environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
-    deploy:
-      resources:
-        limits:
-          memory: 700m
   api-gateway:
     image: gateway
     ports:
