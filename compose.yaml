@@ -1,6 +1,10 @@
+version: '3.8'
+
 services:
   currency-exchange:
-    image: exchange
+    # O PULO DO GATO: Indica onde está o Dockerfile para construir a imagem
+    build: ./currency-exchange-service
+    image: currency-exchange-img
     ports:
       - "8000:8000"
     networks:
@@ -8,13 +12,18 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      # IMPORTANTE: Define o nome exato para o Feign encontrar
+      - SPRING_APPLICATION_NAME=currency-exchange
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   currency-conversion:
-    image: conversion
+    # Aponta para a pasta do conversion
+    build: ./currency-conversion-service
+    image: currency-conversion-img
     ports:
       - "8100:8100"
     networks:
@@ -22,13 +31,17 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      - SPRING_APPLICATION_NAME=currency-conversion
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   api-gateway:
-    image: gateway
+    # Aponta para a pasta do gateway
+    build: ./api-gateway
+    image: api-gateway-img
     ports:
       - "8765:8765"
     networks:
@@ -36,13 +49,16 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   naming-server:
-    image: nameserver
+    # Aponta para a pasta do naming-server
+    build: ./naming-server
+    image: naming-server-img
     ports:
       - "8761:8761"
     networks:
@@ -51,5 +67,24 @@ services:
       resources:
         limits:
           memory: 700m
+
+  currency-report:
+    build: ./currency-report
+    image: currency-report-img
+    ports:
+      # Mapeando 8200 (PC) para 8100 (Container) para não conflitar com o Conversion
+      - "8200:8100" 
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      - SPRING_APPLICATION_NAME=currency-report
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
 networks:
   currency-network:
