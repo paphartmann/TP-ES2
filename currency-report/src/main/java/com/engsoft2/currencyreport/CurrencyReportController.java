@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,26 +12,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CurrencyReportController {
 
-    // Requisito 1: GET /health
+    @Autowired
+    private CurrencyExchangeProxy proxy;
+
     @GetMapping("/health")
     public Map<String, String> health() {
-        Map<String, String> status = new HashMap<>();
-        status.put("status", "UP");
-        return status;
+        return Map.of("status", "UP");
     }
 
-    // Requisito 2: GET /quote (Mockado)
     @GetMapping("/quote")
-    public Map<String, Object> getQuote(
-            @RequestParam String from,
-            @RequestParam String to
-    ) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("from", from);
-        response.put("to", to);
-        response.put("price", 5.42); // Valor mockado fixo
-        response.put("timestamp", LocalDateTime.now().toString());
+    public Map<String, Object> getQuote(@RequestParam String from, @RequestParam String to) {
+        // Busca os dados do outro microsserviço
+        CurrencyExchangeDto response = proxy.retrieveExchangeValue(from, to);
         
-        return response;
+        // Monta o JSON exatamente como o enunciado pede
+        Map<String, Object> result = new HashMap<>();
+        result.put("from", response.getFrom());
+        result.put("to", response.getTo());
+        result.put("price", response.getConversionMultiple()); // Mapeia conversionMultiple para price
+        result.put("timestamp", LocalDateTime.now().toString()); // Adiciona o timestamp atual
+        
+        return result;
     }
 }

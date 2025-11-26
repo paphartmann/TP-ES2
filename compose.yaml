@@ -73,7 +73,7 @@ services:
     image: currency-report-img
     ports:
       # Mapeando 8200 (PC) para 8100 (Container) para não conflitar com o Conversion
-      - "8200:8100" 
+      - "8200:8080" 
     networks:
       - currency-network
     depends_on:
