@@ -3,7 +3,9 @@ package com.engsoft2.currencyreport;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 
 @SpringBootTest(
 	classes = {CurrencyReportApplication.class, CurrencyReportApplicationTests.StubConfig.class},
@@ -15,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 		"spring.cloud.openfeign.enabled=false" // evita criar cliente Feign real nos testes
 	}
 )
+@ImportAutoConfiguration(exclude = FeignAutoConfiguration.class)
 class CurrencyReportApplicationTests {
 
 	@TestConfiguration
