@@ -21,13 +21,13 @@ jobs:
       - name: Build & test services
         run: |
           cd naming-server
-          ./naming-server/mvnw -B clean test
+          ./mvnw -B clean test
           cd ../currency-exchange-service
-          ./currency-exchange-service/mvnw -B clean test
+          ./mvnw -B clean test
           cd ../currency-conversion-service
-          ./currency-conversion-service/mvnw -B clean test
+          ./mvnw -B clean test
           cd ../api-gateway
-          ./api-gateway/mvnw -B clean test
+          ./mvnw -B clean test
           # quando os novos serviços estiverem prontos, inclua:
           # ./currency-report/mvnw -B clean test
           # ./currency-history/mvnw -B clean test
