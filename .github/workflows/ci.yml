@@ -24,9 +24,8 @@ jobs:
           ./currency-exchange-service/mvnw -B clean test
           ./currency-conversion-service/mvnw -B clean test
           ./api-gateway/mvnw -B clean test
-          # quando os novos serviços estiverem prontos, inclua:
-          # ./currency-report/mvnw -B clean test
-          # ./currency-history/mvnw -B clean test
+          ./currency-report/mvnw -B clean test
+          ./currency-history/mvnw -B clean test
 
       - name: Docker build images
         run: |
@@ -34,6 +33,5 @@ jobs:
           docker build -t exchange ./currency-exchange-service
           docker build -t conversion ./currency-conversion-service
           docker build -t gateway ./api-gateway
-          # quando os novos serviços estiverem prontos, inclua:
-          # docker build -t currency-report ./currency-report
-          # docker build -t currency-history ./currency-history
+          docker build -t currency-report ./currency-report
+          docker build -t currency-history ./currency-history
