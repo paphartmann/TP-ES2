@@ -1,6 +1,11 @@
+version: '3.8'
+
 services:
   currency-exchange:
-    image: exchange
+    build: 
+      context: ./currency-exchange-service
+      dockerfile: Dockerfile
+    image: currency-exchange-img
     ports:
       - "8000:8000"
     networks:
@@ -8,13 +13,18 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      - SPRING_APPLICATION_NAME=currency-exchange
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   currency-conversion:
-    image: conversion
+    build: 
+      context: ./currency-conversion-service
+      dockerfile: Dockerfile
+    image: currency-conversion-img
     ports:
       - "8100:8100"
     networks:
@@ -22,13 +32,18 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      - SPRING_APPLICATION_NAME=currency-conversion
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   api-gateway:
-    image: gateway
+    build: 
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway-img
     ports:
       - "8765:8765"
     networks:
@@ -36,13 +51,17 @@ services:
     depends_on:
       - naming-server
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
     deploy:
       resources:
         limits:
           memory: 700m
+
   naming-server:
-    image: nameserver
+    build: 
+      context: ./naming-server
+      dockerfile: Dockerfile
+    image: naming-server-img
     ports:
       - "8761:8761"
     networks:
@@ -51,5 +70,49 @@ services:
       resources:
         limits:
           memory: 700m
+
+  # MICROSSERVIÇO A (Relatório)
+  currency-report:
+    build:
+      context: ./currency-report
+      dockerfile: Dockerfile
+    image: currency-report-img
+    ports:
+      # Mapeia 8200 (Seu PC) -> 8080 (Container Spring Boot)
+      - "8200:8080" 
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+      - currency-exchange
+    environment:
+      - SPRING_APPLICATION_NAME=currency-report
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
+  # MICROSSERVIÇO B (Histórico) - NOVO!
+  currency-history:
+    build:
+      context: ./currency-history
+      dockerfile: Dockerfile
+    image: currency-history-img
+    ports:
+      # Mapeia 8300 (Seu PC) -> 8080 (Container Spring Boot)
+      - "8300:8080"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      - SPRING_APPLICATION_NAME=currency-history
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
 networks:
   currency-network:
