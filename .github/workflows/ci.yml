@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build & test services
+        run: |
+          ./naming-server/mvnw -B clean test
+          ./currency-exchange-service/mvnw -B clean test
+          ./currency-conversion-service/mvnw -B clean test
+          ./api-gateway/mvnw -B clean test
+          # quando os novos serviços estiverem prontos, inclua:
+          # ./currency-report/mvnw -B clean test
+          # ./currency-history/mvnw -B clean test
+
+      - name: Docker build images
+        run: |
+          docker build -t nameserver ./naming-server
+          docker build -t exchange ./currency-exchange-service
+          docker build -t conversion ./currency-conversion-service
+          docker build -t gateway ./api-gateway
+          # quando os novos serviços estiverem prontos, inclua:
+          # docker build -t currency-report ./currency-report
+          # docker build -t currency-history ./currency-history
