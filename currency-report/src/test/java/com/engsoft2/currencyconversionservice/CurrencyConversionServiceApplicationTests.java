@@ -5,11 +5,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootTest(properties = {
-	"eureka.client.enabled=false",
-	"spring.cloud.discovery.enabled=false",
-	"spring.cloud.openfeign.enabled=false" // evita criar cliente Feign real nos testes
-})
+@SpringBootTest(
+	classes = {CurrencyReportApplication.class, CurrencyReportApplicationTests.StubConfig.class},
+	properties = {
+		"eureka.client.enabled=false",
+		"eureka.client.register-with-eureka=false",
+		"eureka.client.fetch-registry=false",
+		"spring.cloud.discovery.enabled=false",
+		"spring.cloud.openfeign.enabled=false" // evita criar cliente Feign real nos testes
+	}
+)
 class CurrencyReportApplicationTests {
 
 	@TestConfiguration
